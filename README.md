@@ -1,0 +1,5 @@
+## Debugging
+
+```
+zig build run
+```
