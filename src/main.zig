@@ -6,6 +6,8 @@ const MULT: f32 = 100.0; // Multiplier for movement speed, can be adjusted
 
 const Actor = struct { name: [:0]const u8, position: Vector2, sprite: rl.Texture2D };
 
+const Tile = struct { position: Vector2, sprite: rl.Texture2D, destination: rl.Rectangle };
+
 fn loadControls(actor: *Actor) !void {
     if (rl.isKeyDown(.d)) actor.position.x += 2.0 * MULT * rl.getFrameTime();
     if (rl.isKeyDown(.a)) actor.position.x -= 2.0 * MULT * rl.getFrameTime();
@@ -36,7 +38,7 @@ fn loadPlayer(p1: *Actor) !void {
     rl.drawTexturePro(p1.sprite, sourceRect, destRect, origin, 0.0, .white);
 
     // Draw player name above the sprite
-    rl.drawText(p1.name, @intFromFloat(p1.position.x - 30), @intFromFloat(p1.position.y - spriteHeight / 2 - 25), 20, .white);
+    rl.drawText(p1.name, @intFromFloat(p1.position.x - 30), @intFromFloat(p1.position.y - (spriteHeight / 2) + 20), 20, .white);
 }
 
 pub fn main() anyerror!void {
@@ -47,15 +49,14 @@ pub fn main() anyerror!void {
     defer rl.closeWindow();
     rl.setTargetFPS(120);
 
-    // Load textures AFTER initializing the window
-    var p1 = Actor{ .name = "Player", .position = Vector2{ .x = 400.0, .y = 225.0 }, .sprite = try rl.loadTexture("assets/Soldier.png") };
-
-    // Create player outside the game loop
+    var p1 = Actor{ .name = "Avi", .position = Vector2{ .x = 400.0, .y = 225.0 }, .sprite = try rl.loadTexture("assets/Soldier.png") };
+    const g1 = Tile{ .position = Vector2{ .x = 0.0, .y = 0.0 }, .sprite = try rl.loadTexture("assets/Texture/tx_grass.png"), .destination = rl.Rectangle{ .x = 0, .y = 0, .width = 1, .height = 1 } };
 
     while (!rl.windowShouldClose()) {
         rl.beginDrawing();
         defer rl.endDrawing();
         rl.clearBackground(.black);
+        rl.drawTexturePro(g1.sprite, g1.destination, rl.Rectangle{ .x = 0, .y = 0, .height = 40, .width = 40 }, Vector2{ .x = 0, .y = 0 }, 0, .white);
         try loadPlayer(&p1);
     }
 }
