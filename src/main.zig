@@ -13,6 +13,32 @@ fn loadControls(actor: *Actor) !void {
     if (rl.isKeyDown(.s)) actor.position.y += 2.0 * MULT * rl.getFrameTime(); // Down increases Y
 }
 
+fn loadPlayer(p1: *Actor) !void {
+    try loadControls(p1);
+
+    // Calculate centered position for sprite rendering
+    const spriteWidth = 160.0;
+    const spriteHeight = 160.0;
+    const destRect = rl.Rectangle{
+        .x = p1.position.x - spriteWidth / 2.0, // Center horizontally
+        .y = p1.position.y - spriteHeight / 2.0, // Center vertically
+        .width = spriteWidth,
+        .height = spriteHeight,
+    };
+
+    // Source rectangle for the sprite (the part of the texture to use)
+    const sourceRect = rl.Rectangle{ .x = 0, .y = 0, .width = 90, .height = 90 };
+
+    // Origin point of the texture (for rotation)
+    const origin = Vector2{ .x = 0.0, .y = 0.0 };
+
+    // Draw the sprite at player's position
+    rl.drawTexturePro(p1.sprite, sourceRect, destRect, origin, 0.0, .white);
+
+    // Draw player name above the sprite
+    rl.drawText(p1.name, @intFromFloat(p1.position.x - 30), @intFromFloat(p1.position.y - spriteHeight / 2 - 25), 20, .white);
+}
+
 pub fn main() anyerror!void {
     const screenWidth = 800;
     const screenHeight = 450;
@@ -21,36 +47,15 @@ pub fn main() anyerror!void {
     defer rl.closeWindow();
     rl.setTargetFPS(120);
 
-    // Create player outside the game loop
+    // Load textures AFTER initializing the window
     var p1 = Actor{ .name = "Player", .position = Vector2{ .x = 400.0, .y = 225.0 }, .sprite = try rl.loadTexture("assets/Soldier.png") };
+
+    // Create player outside the game loop
 
     while (!rl.windowShouldClose()) {
         rl.beginDrawing();
         defer rl.endDrawing();
         rl.clearBackground(.black);
-
-        try loadControls(&p1);
-
-        // Calculate centered position for sprite rendering
-        const spriteWidth = 160.0;
-        const spriteHeight = 160.0;
-        const destRect = rl.Rectangle{
-            .x = p1.position.x - spriteWidth / 2.0, // Center horizontally
-            .y = p1.position.y - spriteHeight / 2.0, // Center vertically
-            .width = spriteWidth,
-            .height = spriteHeight,
-        };
-
-        // Source rectangle for the sprite (the part of the texture to use)
-        const sourceRect = rl.Rectangle{ .x = 0, .y = 0, .width = 90, .height = 90 };
-
-        // Origin point of the texture (for rotation)
-        const origin = Vector2{ .x = 0.0, .y = 0.0 };
-
-        // Draw the sprite at player's position
-        rl.drawTexturePro(p1.sprite, sourceRect, destRect, origin, 0.0, .white);
-
-        // Draw player name above the sprite
-        rl.drawText(p1.name, @intFromFloat(p1.position.x - 30), @intFromFloat(p1.position.y - spriteHeight / 2 - 25), 20, .white);
+        try loadPlayer(&p1);
     }
 }
