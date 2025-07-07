@@ -1,46 +1,45 @@
 const rl = @import("raylib");
 const std = @import("std");
+
+// project imports
 const world_struct = @import("world.zig");
 
 const Vector2 = rl.Vector2;
-const Actor = struct { name: [:0]u8, position: Vector2 };
+pub const Actor = struct { name: [:0]const u8, char: u8 };
+
+const Config = struct {
+    const SCREEN_WIDTH = 800;
+    const SCREEN_HEIGHT = 450;
+    const FPS = 120;
+    const GRID_SIZE = 10;
+    const CELL_SIZE = 20;
+    const OFFSET_X = 50;
+    const OFFSET_Y = 50;
+};
+
+fn initWindow() void {
+    rl.initWindow(Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT, "Hewooo!!~");
+    rl.setTargetFPS(Config.FPS);
+}
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
 
-    const screenWidth = 800;
-    const screenHeight = 450;
-
-    rl.initWindow(screenWidth, screenHeight, "Hewooo!!~");
+    initWindow();
     defer rl.closeWindow();
-    rl.setTargetFPS(60);
 
-    const gridSize = 10;
-    const cellSize = 20;
-    const offsetX = 50;
-    const offsetY = 50;
-
-    var world = try world_struct.world.init(allocator, gridSize, gridSize);
+    var world = try world_struct.world.init(allocator, Config.GRID_SIZE, Config.GRID_SIZE);
     defer world.deinit(allocator);
+
+    const avi = Actor{ .name = "Avi", .char = '@' };
 
     while (!rl.windowShouldClose()) {
         rl.beginDrawing();
         defer rl.endDrawing();
+
         rl.clearBackground(.black);
 
-        for (0..gridSize) |y| {
-            for (0..gridSize) |x| {
-                const ch = world.at(x, y).*;
-                var buf: [2]u8 = [_]u8{ ch, 0 };
-
-                rl.drawText(
-                    @ptrCast(&buf),
-                    @intCast(offsetX + x * cellSize),
-                    @intCast(offsetY + y * cellSize),
-                    20,
-                    .white,
-                );
-            }
-        }
+        try world.placeActor(5, 5, avi, avi.char);
+        world.draw();
     }
 }
