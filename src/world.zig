@@ -21,21 +21,4 @@ pub const world = struct {
     pub fn at(self: *world, x: usize, y: usize) *u8 {
         return &self.data[y * self.width + x];
     }
-
-    pub fn draw(self: *world) void {
-        for (0..gridSize) |y| {
-            for (0..gridSize) |x| {
-                const ch = world.at(x, y).*;
-                var buf: [2]u8 = [_]u8{ ch, 0 };
-
-                rl.drawText(
-                    @ptrCast(&buf),
-                    @intCast(offsetX + x * cellSize),
-                    @intCast(offsetY + y * cellSize),
-                    20,
-                    .white,
-                );
-            }
-        }
-    }
 };
